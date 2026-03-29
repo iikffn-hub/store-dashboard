@@ -1,0 +1,40 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Select Delete</title>
+</head>
+<body>
+<h2>حذف بالتحديد</h2>
+
+<form method="POST">
+<table border="1">
+<tr>
+    <th><input type="checkbox" onclick="toggle(this)"></th>
+    <th>ID</th>
+    <th>Email</th>
+</tr>
+{% for row in data %}
+<tr>
+    <td><input type="checkbox" name="selected" value="{{row.id}}"></td>
+    <td>{{row.id}}</td>
+    <td>{{row.email}}</td>
+</tr>
+{% endfor %}
+</table>
+
+<br>
+<button type="submit">حذف المحدد</button>
+</form>
+
+<script>
+function toggle(source){
+    checkboxes = document.getElementsByName('selected');
+    for(var i=0;i<checkboxes.length;i++){
+        checkboxes[i].checked = source.checked;
+    }
+}
+</script>
+
+</body>
+</html>
