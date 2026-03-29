@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block body %}
+<div class="login-wrap">
+  <form class="login-card" method="post">
+    <div class="brand">لوحة إدارة المتجر</div>
+    <div class="sub">نسخة ويب مهيأة لتعمل من أي جهاز بعد رفعها على استضافة أو سيرفر.</div>
+    {% with messages = get_flashed_messages() %}{% if messages %}<div class="flash">{{ messages[0] }}</div>{% endif %}{% endwith %}
+    <div style="margin-bottom:12px"><label>اسم المستخدم</label><input name="username" value="admin"></div>
+    <div style="margin-bottom:12px"><label>كلمة المرور</label><input type="password" name="password" value="Store@12345"></div>
+    <button class="btn" style="width:100%">دخول</button>
+    <p class="muted" style="margin-top:12px">غيّر البيانات من صفحة الإعدادات بعد أول دخول.</p>
+  </form>
+</div>
+{% endblock %}

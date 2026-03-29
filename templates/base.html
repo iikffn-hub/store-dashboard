@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ title or 'لوحة المتجر' }}</title>
+  <style>
+    :root{--bg:#0f172a;--card:#111827;--soft:#1f2937;--line:#334155;--text:#e5e7eb;--muted:#94a3b8;--accent:#22c55e;--danger:#ef4444;--warn:#f59e0b}
+    *{box-sizing:border-box;font-family:Tahoma,Arial,sans-serif}
+    body{margin:0;background:linear-gradient(180deg,#020617,#0f172a 30%,#111827);color:var(--text)}
+    a{color:inherit;text-decoration:none}
+    .layout{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
+    .sidebar{background:rgba(15,23,42,.85);border-left:1px solid var(--line);padding:24px;position:sticky;top:0;height:100vh}
+    .brand{font-size:24px;font-weight:700;margin-bottom:10px}.sub{color:var(--muted);font-size:13px;margin-bottom:22px}
+    .nav a{display:block;padding:12px 14px;margin:6px 0;border:1px solid transparent;border-radius:14px;background:rgba(255,255,255,.02)}
+    .nav a:hover,.nav a.active{background:rgba(34,197,94,.12);border-color:rgba(34,197,94,.25)}
+    .content{padding:28px}
+    .topbar{display:flex;gap:12px;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap}
+    .pill{padding:10px 14px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.03);color:var(--muted)}
+    .btn{background:var(--accent);color:#052e16;border:none;padding:10px 14px;border-radius:12px;font-weight:700;cursor:pointer}
+    .btn.secondary{background:transparent;color:var(--text);border:1px solid var(--line)}
+    .btn.danger{background:var(--danger);color:white}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+    .card{background:rgba(17,24,39,.9);border:1px solid var(--line);border-radius:20px;padding:18px;box-shadow:0 8px 30px rgba(0,0,0,.18)}
+    .kpi{font-size:32px;font-weight:700;margin-top:10px}
+    table{width:100%;border-collapse:collapse;font-size:14px}
+    th,td{padding:12px 10px;border-bottom:1px solid rgba(148,163,184,.14);text-align:right;vertical-align:top}
+    th{color:#cbd5e1;background:rgba(255,255,255,.03);position:sticky;top:0}
+    .table-wrap{overflow:auto;max-height:70vh;border-radius:16px;border:1px solid var(--line)}
+    input,textarea,select{width:100%;padding:11px 12px;background:#0b1220;border:1px solid var(--line);color:var(--text);border-radius:12px}
+    textarea{min-height:110px}
+    .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+    .muted{color:var(--muted)}
+    .flash{background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);padding:12px;border-radius:14px;margin-bottom:14px}
+    .tag{padding:6px 10px;border-radius:999px;display:inline-block;background:rgba(255,255,255,.06)}
+    .ok{background:rgba(34,197,94,.15)} .warn{background:rgba(245,158,11,.18)} .bad{background:rgba(239,68,68,.18)}
+    .login-wrap{display:flex;justify-content:center;align-items:center;min-height:100vh;padding:20px}
+    .login-card{width:min(460px,100%);background:rgba(17,24,39,.92);border:1px solid var(--line);border-radius:24px;padding:28px}
+    @media(max-width:900px){.layout{grid-template-columns:1fr}.sidebar{position:relative;height:auto}.content{padding:18px}}
+  </style>
+</head>
+<body>
+{% block body %}{% endblock %}
+<script>
+async function api(method, url, payload){
+  const res = await fetch(url,{method,headers:{'Content-Type':'application/json'},body: payload?JSON.stringify(payload):undefined});
+  return await res.json();
+}
+</script>
+</body>
+</html>

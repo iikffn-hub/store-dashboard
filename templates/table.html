@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% block body %}
+<div class="layout">
+  {% include 'sidebar.html' %}
+  <main class="content">
+    <div class="topbar">
+      <div>
+        <h1 style="margin:0">{{ {'orders':'الطلبات','customers':'العملاء','email_banks':'بنك الإيميلات','subscriptions':'الاشتراكات'}[table_name] }}</h1>
+        <div class="muted">عرض وإدارة السجلات الحالية — الآن يمكنك الإضافة والتعديل والحذف.</div>
+      </div>
+      <form method="get" class="pill" style="display:flex;gap:10px;min-width:min(540px,100%)">
+        <input name="q" placeholder="بحث سريع..." value="{{ q }}">
+        <button class="btn secondary">بحث</button>
+      </form>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <h3 id="formTitle">إضافة سجل جديد</h3>
+      <div class="muted" id="formHint" style="margin-bottom:12px">اضغط حفظ وسيتم إضافة السجل مباشرة في قاعدة البيانات.</div>
+      <div id="formArea"></div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px">
+        <div class="muted">اضغط <span class="tag">تعديل</span> على أي صف لتعبئة الحقول أعلى الجدول ثم احفظ.</div>
+        <button class="btn secondary" id="cancelEditBtn" style="display:none" onclick="cancelEdit()">إلغاء التعديل</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              {% if rows %}{% for k in rows[0].keys() %}<th>{{ k }}</th>{% endfor %}{% endif %}
+              <th>إجراءات</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in rows %}
+            <tr>
+              {% for k,v in row.items() %}<td>{{ v if v is not none else '-' }}</td>{% endfor %}
+              <td>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                  <button class="btn secondary" onclick='editRow({{ row|tojson|safe }})'>تعديل</button>
+                  <button class="btn danger" onclick="removeRow({{ row.id }})">حذف</button>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+<script>
+const tableName = '{{ table_name }}';
+const rows = {{ rows|tojson|safe }};
+const schema = {
+  customers: ['customer_code','name','phone','city','purchase_count'],
+  email_banks: ['email_code','email','password','account_ref','notes'],
+  orders: ['email_ref','order_number','customer_code','subscription_type','order_date','end_date','total','source','status','send_expiry_notice','password_changed','send_new_password','sync_files'],
+  subscriptions: ['program_name','account_id','renew_date','account_end_date','renew_value','login_identifier','login_password','source_order_number','customer_code','product_name','start_date','customer_end_date','extra1','extra2','extra3','notes']
+};
+const booleanFields = new Set(['send_expiry_notice','password_changed','send_new_password','sync_files']);
+const numericFields = new Set(['purchase_count','total','renew_value']);
+const longTextFields = new Set(['notes']);
+const formArea = document.getElementById('formArea');
+const formTitle = document.getElementById('formTitle');
+const formHint = document.getElementById('formHint');
+const cancelEditBtn = document.getElementById('cancelEditBtn');
+let editingId = null;
+
+function fieldInput(field){
+  if (booleanFields.has(field)) {
+    return `<select name="${field}"><option value="0">0</option><option value="1">1</option></select>`;
+  }
+  if (longTextFields.has(field)) {
+    return `<textarea name="${field}" placeholder="${field}"></textarea>`;
+  }
+  const type = numericFields.has(field) ? 'number' : (field.includes('date') ? 'date' : 'text');
+  const step = field === 'total' || field === 'renew_value' ? 'step="0.01"' : '';
+  return `<input name="${field}" type="${type}" ${step} placeholder="${field}">`;
+}
+
+function renderForm(){
+  formArea.innerHTML = `<div class="form-grid">${schema[tableName].map(f=>`<div><label>${f}</label>${fieldInput(f)}</div>`).join('')}</div><div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap"><button class="btn" onclick="saveRec()">${editingId ? 'حفظ التعديل' : 'حفظ'}</button>${editingId ? '<button class="btn secondary" onclick="cancelEdit()">إلغاء</button>' : ''}</div>`;
+}
+
+function setFieldValue(name, value){
+  const el = formArea.querySelector(`[name="${name}"]`);
+  if(!el) return;
+  el.value = value == null ? '' : value;
+}
+
+function getPayload(){
+  const payload = {};
+  formArea.querySelectorAll('input, textarea, select').forEach(i => {
+    let value = i.value;
+    if (booleanFields.has(i.name)) value = value === '1' ? 1 : 0;
+    if (numericFields.has(i.name) && value !== '') value = Number(value);
+    payload[i.name] = value;
+  });
+  return payload;
+}
+
+function editRow(row){
+  editingId = row.id;
+  renderForm();
+  schema[tableName].forEach(field => setFieldValue(field, row[field]));
+  formTitle.textContent = `تعديل السجل رقم ${row.id}`;
+  formHint.textContent = 'عدّل الحقول المطلوبة ثم اضغط حفظ التعديل.';
+  cancelEditBtn.style.display = 'inline-flex';
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function cancelEdit(){
+  editingId = null;
+  renderForm();
+  formTitle.textContent = 'إضافة سجل جديد';
+  formHint.textContent = 'اضغط حفظ وسيتم إضافة السجل مباشرة في قاعدة البيانات.';
+  cancelEditBtn.style.display = 'none';
+}
+
+async function saveRec(){
+  const payload = getPayload();
+  const url = editingId ? `/api/${tableName}/${editingId}` : `/api/${tableName}`;
+  const method = editingId ? 'PUT' : 'POST';
+  const out = await api(method, url, payload);
+  if(out.ok) location.reload(); else alert(out.error || 'فشل الحفظ');
+}
+
+async function removeRow(id){
+  if(!confirm('تأكيد الحذف؟')) return;
+  const out = await api('DELETE', `/api/${tableName}/${id}`);
+  if(out.ok) location.reload(); else alert('تعذر الحذف');
+}
+
+renderForm();
+</script>
+{% endblock %}

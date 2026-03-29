@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block body %}
+<div class="layout">
+  {% include 'sidebar.html' %}
+  <main class="content">
+    <div class="topbar">
+      <div>
+        <h1 style="margin:0">لوحة تحكم المتجر</h1>
+        <div class="muted">ملخص سريع للطلبات والعملاء والحسابات والاشتراكات.</div>
+      </div>
+      <div class="pill">المستخدم الحالي: {{ user }}</div>
+    </div>
+
+    <section class="grid">
+      <div class="card"><div class="muted">إجمالي الطلبات</div><div class="kpi">{{ stats.orders }}</div></div>
+      <div class="card"><div class="muted">العملاء</div><div class="kpi">{{ stats.customers }}</div></div>
+      <div class="card"><div class="muted">إيميلات البنوك</div><div class="kpi">{{ stats.emails }}</div></div>
+      <div class="card"><div class="muted">كل الاشتراكات</div><div class="kpi">{{ stats.subscriptions }}</div></div>
+      <div class="card"><div class="muted">اشتراكات فعالة</div><div class="kpi">{{ stats.active_subscriptions }}</div></div>
+      <div class="card"><div class="muted">تنتهي خلال 7 أيام</div><div class="kpi">{{ stats.expiring_soon }}</div></div>
+      <div class="card"><div class="muted">إجمالي المبيعات</div><div class="kpi">{{ stats.sales_total }}</div></div>
+    </section>
+
+    <div class="grid" style="margin-top:18px">
+      <div class="card">
+        <h3>آخر الطلبات</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>رقم الطلب</th><th>العميل</th><th>النوع</th><th>الحالة</th><th>المبلغ</th><th>الباقي</th></tr></thead>
+            <tbody>{% for r in recent_orders %}<tr><td>{{ r.order_number or '-' }}</td><td>{{ r.customer_code or '-' }}</td><td>{{ r.subscription_type or '-' }}</td><td>{{ r.status or '-' }}</td><td>{{ r.total or '-' }}</td><td>{{ r.days_left if r.days_left is not none else '-' }}</td></tr>{% endfor %}</tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <h3>الاشتراكات الأقرب للانتهاء</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>البرنامج</th><th>العميل</th><th>المنتج</th><th>تاريخ الانتهاء</th><th>الباقي</th></tr></thead>
+            <tbody>{% for r in expiring %}<tr><td>{{ r.program_name or '-' }}</td><td>{{ r.customer_code or '-' }}</td><td>{{ r.product_name or '-' }}</td><td>{{ r.customer_end_date or '-' }}</td><td>{{ r.days_left if r.days_left is not none else '-' }}</td></tr>{% endfor %}</tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}

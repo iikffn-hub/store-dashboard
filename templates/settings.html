@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block body %}
+<div class="layout">
+  {% include 'sidebar.html' %}
+  <main class="content">
+    <div class="card" style="max-width:680px">
+      <h1>الإعدادات</h1>
+      <div class="muted">تغيير اسم المستخدم وكلمة المرور الافتراضية.</div>
+      {% if message %}<div class="flash">{{ message }}</div>{% endif %}
+      <form method="post" class="form-grid" style="margin-top:12px">
+        <div><label>اسم المستخدم الجديد</label><input name="username" required></div>
+        <div><label>كلمة المرور الجديدة</label><input name="password" required></div>
+        <div style="grid-column:1/-1"><button class="btn">حفظ</button></div>
+      </form>
+      <p class="muted" style="margin-top:18px">النسخة الحالية مناسبة كبداية. لإضافة صلاحيات متعددة، نسخ احتياطي، تقارير أرباح، وربط مع دومين حقيقي تقدر توسعها لاحقاً.</p>
+    </div>
+  </main>
+</div>
+{% endblock %}
